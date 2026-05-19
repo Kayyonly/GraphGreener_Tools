@@ -1,5 +1,4 @@
-
-readme_content = """# 🌱 Graph-Greener
+# 🌱 Graph-Greener
 
 **GitHub Contribution Graph Commit Generator dengan GUI**  
 Dibuat oleh: **KayyOnly**
