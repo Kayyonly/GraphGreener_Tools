@@ -101,11 +101,3 @@ MIT License — Bebas digunakan dan dimodifikasi dengan risiko sendiri.
 <p align="center">
   <sub>Made with 💚 by KayyOnly</sub>
 </p>
-"""
-
-output_path = "/mnt/agents/output/README.md"
-with open(output_path, "w", encoding="utf-8") as f:
-    f.write(readme_content)
-
-print(f"README.md saved: {output_path}")
-print(f"Size: {len(readme_content)} chars")
