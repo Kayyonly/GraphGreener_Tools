@@ -13,47 +13,6 @@ Graph-Greener adalah tools berbasis GUI (Tkinter) yang membantu kamu mengisi **G
 
 ---
 
-## ✨ Fitur
-
-- 🖥️ **GUI Modern Dark Theme** — Tampilan elegan ala GitHub dark mode
-- 📅 **Random Date Distribution** — Commit tersebar acak dalam 365 hari terakhir
-- 📁 **Browse Folder** — Pilih repository dengan file picker
-- 📊 **Progress Bar Real-time** — Pantau proses pembuatan commit
-- 📝 **Activity Log** — Lihat status setiap commit (success/fail)
-- 🚀 **Auto Push** — Opsi push otomatis ke remote setelah selesai
-- ⚡ **Non-blocking UI** — Proses berjalan di background thread
-- 🛡️ **Validasi** — Cek otomatis apakah folder adalah repository Git yang valid
-
----
-
-## 🖥️ Screenshot Konsep
-
-```
-┌─────────────────────────────────────────────┐
-│  🌱 Graph-Greener                           │
-│  GitHub Contribution Graph Commit Generator  │
-│  by KayyOnly                                │
-├─────────────────────────────────────────────┤
-│  Number of Commits: [20        ]            │
-│  Repository Path:   [/path/to/repo] [Browse]│
-│  Target Filename:   [data.txt   ]            │
-│  Commit Message:    [graph-greener!]         │
-│  [✓] Push to remote after committing        │
-├─────────────────────────────────────────────┤
-│  [🚀 Generate Commits] [🧹 Clear] [❌ Exit] │
-│  [===================>    ] 15/20...         │
-├─────────────────────────────────────────────┤
-│  Activity Log:                              │
-│  [1/20] ✅ 2025-08-14 09:23:17              │
-│  [2/20] ✅ 2025-03-02 14:55:42              │
-│  ...                                        │
-├─────────────────────────────────────────────┤
-│            Made with 💚 by KayyOnly         │
-└─────────────────────────────────────────────┘
-```
-
----
-
 ## 🛠️ Persyaratan
 
 - **Python 3.7+**
@@ -83,7 +42,7 @@ Graph-Greener adalah tools berbasis GUI (Tkinter) yang membantu kamu mengisi **G
 
 1. **Jalankan aplikasi**:
    ```bash
-   python graph_greener_gui.py
+   python main.py
    ```
 
 2. **Isi form**:
@@ -98,51 +57,6 @@ Graph-Greener adalah tools berbasis GUI (Tkinter) yang membantu kamu mengisi **G
 4. **Tunggu proses selesai** — Progress bar dan log akan menampilkan status
 
 5. **Cek GitHub** — Buka profil GitHub kamu, contribution graph akan update dalam beberapa menit
-
----
-
-## ⚙️ Konfigurasi Lanjutan
-
-### Mengubah Default Value
-Edit bagian berikut di kode jika ingin mengubah default:
-```python
-self.commits_var = tk.IntVar(value=20)        # Default commits
-self.filename_var = tk.StringVar(value="data.txt")  # Default file
-self.message_var = tk.StringVar(value="graph-greener!")  # Default message
-```
-
-### Custom Date Range
-Saat ini tools menggunakan distribusi acak dalam 365 hari terakhir. Untuk mengubah range, edit method `random_date_in_last_year()`:
-```python
-def random_date_custom(self):
-    start = datetime(2025, 1, 1)   # Tanggal mulai
-    end = datetime(2025, 12, 31)   # Tanggal akhir
-    delta = end - start
-    return start + timedelta(seconds=random.randint(0, int(delta.total_seconds())))
-```
-
----
-
-## 🐞 Troubleshooting
-
-| Masalah | Solusi |
-|---------|--------|
-| `Directory is not a git repository` | Pastikan folder memiliki subfolder `.git`. Jalankan `git init` jika belum. |
-| `Push failed` | Cek remote URL dengan `git remote -v`. Pastikan autentikasi Git sudah setup (SSH key atau Personal Access Token). |
-| `Permission denied` | Pastikan kamu punya write access ke repository. |
-| GUI tidak muncul | Pastikan Python diinstall dengan Tcl/Tk support. Di Linux: `sudo apt-get install python3-tk` |
-| Commit tidak muncul di graph | GitHub butuh waktu beberapa menit. Pastikan email Git (`git config user.email`) cocok dengan email akun GitHub. |
-
----
-
-## 📁 Struktur File
-
-```
-graph-greener/
-├── graph_greener_gui.py    # File utama (GUI)
-├── README.md               # Dokumentasi ini
-└── .gitignore              # (Opsional) Ignore data.txt
-```
 
 ---
 
