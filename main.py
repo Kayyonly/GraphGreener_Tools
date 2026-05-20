@@ -1,7 +1,4 @@
-
 import os
-
-code = '''import os
 import random
 import subprocess
 import threading
