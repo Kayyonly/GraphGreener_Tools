@@ -241,11 +241,6 @@ def main():
 
 if __name__ == "__main__":
     main()
-'''
-
-output_path = "/mnt/agents/output/autocommit_gui.py"
-with open(output_path, "w", encoding="utf-8") as f:
-    f.write(code)
 
 print(f"File saved to: {output_path}")
 print(f"Size: {os.path.getsize(output_path)} bytes")
