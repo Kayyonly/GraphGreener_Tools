@@ -1,4 +1,7 @@
+
 import os
+
+code = '''import os
 import random
 import subprocess
 import threading
@@ -8,11 +11,11 @@ from tkinter import ttk, filedialog, messagebox, scrolledtext
 
 AUTHOR = "KayyOnly"
 
-class GraphGreenerGUI:
+class AutoCommitGUI:
     def __init__(self, root):
         self.root = root
-        self.root.title(f"🌱 Graph-Greener by {AUTHOR}")
-        self.root.geometry("650x550")
+        self.root.title(f"🌱 AutoCommit by {AUTHOR}")
+        self.root.geometry("680x600")
         self.root.resizable(False, False)
         self.root.configure(bg="#0d1117")
 
@@ -29,11 +32,12 @@ class GraphGreenerGUI:
         style.map("Green.TButton", background=[("active", "#56d364")])
         style.configure("TEntry", fieldbackground="#161b22", foreground="#c9d1d9", insertcolor="#c9d1d9")
         style.configure("TSpinbox", fieldbackground="#161b22", foreground="#c9d1d9")
+        style.configure("TRadiobutton", background="#0d1117", foreground="#c9d1d9", font=("Segoe UI", 10))
 
         # Header
         header_frame = ttk.Frame(root, padding="20 20 20 10")
         header_frame.pack(fill="x")
-        ttk.Label(header_frame, text="🌱 Graph-Greener", style="Header.TLabel").pack()
+        ttk.Label(header_frame, text="🌱 AutoCommit", style="Header.TLabel").pack()
         ttk.Label(header_frame, text=f"GitHub Contribution Graph Commit Generator  •  by {AUTHOR}", style="Author.TLabel").pack(pady=(2, 0))
         ttk.Separator(root, orient="horizontal").pack(fill="x", padx=20, pady=5)
 
@@ -52,23 +56,41 @@ class GraphGreenerGUI:
         path_frame = ttk.Frame(form_frame)
         path_frame.grid(row=1, column=1, sticky="w", padx=10)
         self.path_var = tk.StringVar(value=os.getcwd())
-        path_entry = ttk.Entry(path_frame, textvariable=self.path_var, width=35, font=("Segoe UI", 10))
+        path_entry = ttk.Entry(path_frame, textvariable=self.path_var, width=38, font=("Segoe UI", 10))
         path_entry.pack(side="left")
         ttk.Button(path_frame, text="Browse", command=self.browse_repo, width=8).pack(side="left", padx=(5, 0))
 
         # Filename
         ttk.Label(form_frame, text="Target Filename:").grid(row=2, column=0, sticky="w", pady=8)
         self.filename_var = tk.StringVar(value="data.txt")
-        ttk.Entry(form_frame, textvariable=self.filename_var, width=35, font=("Segoe UI", 10)).grid(row=2, column=1, sticky="w", padx=10)
+        ttk.Entry(form_frame, textvariable=self.filename_var, width=38, font=("Segoe UI", 10)).grid(row=2, column=1, sticky="w", padx=10)
 
         # Commit message
         ttk.Label(form_frame, text="Commit Message:").grid(row=3, column=0, sticky="w", pady=8)
-        self.message_var = tk.StringVar(value="graph-greener!")
-        ttk.Entry(form_frame, textvariable=self.message_var, width=35, font=("Segoe UI", 10)).grid(row=3, column=1, sticky="w", padx=10)
+        self.message_var = tk.StringVar(value="autocommit!")
+        ttk.Entry(form_frame, textvariable=self.message_var, width=38, font=("Segoe UI", 10)).grid(row=3, column=1, sticky="w", padx=10)
+
+        # Year selection
+        ttk.Label(form_frame, text="Target Year:").grid(row=4, column=0, sticky="w", pady=8)
+        year_frame = ttk.Frame(form_frame)
+        year_frame.grid(row=4, column=1, sticky="w", padx=10)
+        
+        self.year_mode = tk.StringVar(value="last_year")
+        tk.Radiobutton(year_frame, text="Last 365 Days", variable=self.year_mode, value="last_year",
+                       bg="#0d1117", fg="#c9d1d9", selectcolor="#161b22", activebackground="#0d1117",
+                       activeforeground="#39d353", font=("Segoe UI", 10), command=self.toggle_year_input).pack(side="left", padx=(0, 15))
+        tk.Radiobutton(year_frame, text="Specific Year:", variable=self.year_mode, value="specific",
+                       bg="#0d1117", fg="#c9d1d9", selectcolor="#161b22", activebackground="#0d1117",
+                       activeforeground="#39d353", font=("Segoe UI", 10), command=self.toggle_year_input).pack(side="left")
+        
+        current_year = datetime.now().year
+        self.year_var = tk.IntVar(value=current_year)
+        self.year_spin = ttk.Spinbox(year_frame, from_=2008, to=current_year + 1, textvariable=self.year_var, width=8, font=("Segoe UI", 10), state="disabled")
+        self.year_spin.pack(side="left", padx=(5, 0))
 
         # Push checkbox
         self.push_var = tk.BooleanVar(value=True)
-        ttk.Checkbutton(form_frame, text="Push to remote after committing", variable=self.push_var).grid(row=4, column=0, columnspan=2, sticky="w", pady=8)
+        ttk.Checkbutton(form_frame, text="Push to remote after committing", variable=self.push_var).grid(row=5, column=0, columnspan=2, sticky="w", pady=8)
 
         # Buttons
         btn_frame = ttk.Frame(root, padding="20 5 20 10")
@@ -79,7 +101,7 @@ class GraphGreenerGUI:
         ttk.Button(btn_frame, text="❌ Exit", command=root.quit).pack(side="right")
 
         # Progress
-        self.progress = ttk.Progressbar(root, orient="horizontal", mode="determinate", length=610)
+        self.progress = ttk.Progressbar(root, orient="horizontal", mode="determinate", length=640)
         self.progress.pack(padx=20, pady=(5, 0))
         self.status_var = tk.StringVar(value="Ready")
         ttk.Label(root, textvariable=self.status_var, foreground="#8b949e", font=("Segoe UI", 9)).pack(pady=(2, 0))
@@ -87,11 +109,17 @@ class GraphGreenerGUI:
         # Log
         ttk.Separator(root, orient="horizontal").pack(fill="x", padx=20, pady=10)
         ttk.Label(root, text="Activity Log:", font=("Segoe UI", 10, "bold")).pack(anchor="w", padx=20)
-        self.log_box = scrolledtext.ScrolledText(root, width=75, height=12, bg="#161b22", fg="#c9d1d9", insertbackground="#c9d1d9", font=("Consolas", 9), state="disabled")
+        self.log_box = scrolledtext.ScrolledText(root, width=78, height=12, bg="#161b22", fg="#c9d1d9", insertbackground="#c9d1d9", font=("Consolas", 9), state="disabled")
         self.log_box.pack(padx=20, pady=5)
 
         # Footer
         ttk.Label(root, text=f"Made with 💚 by {AUTHOR}", foreground="#39d353", font=("Segoe UI", 9, "bold")).pack(pady=(0, 10))
+
+    def toggle_year_input(self):
+        if self.year_mode.get() == "specific":
+            self.year_spin.configure(state="normal")
+        else:
+            self.year_spin.configure(state="disabled")
 
     def browse_repo(self):
         path = filedialog.askdirectory(title="Select Git Repository")
@@ -100,7 +128,7 @@ class GraphGreenerGUI:
 
     def log(self, msg):
         self.log_box.configure(state="normal")
-        self.log_box.insert("end", msg + "\n")
+        self.log_box.insert("end", msg + "\\n")
         self.log_box.see("end")
         self.log_box.configure(state="disabled")
 
@@ -111,17 +139,26 @@ class GraphGreenerGUI:
         self.status_var.set("Ready")
         self.progress["value"] = 0
 
-    def random_date_in_last_year(self):
-        today = datetime.now()
-        start_date = today - timedelta(days=365)
-        random_days = random.randint(0, 364)
-        random_seconds = random.randint(0, 23*3600 + 3599)
-        return start_date + timedelta(days=random_days, seconds=random_seconds)
+    def random_date(self):
+        mode = self.year_mode.get()
+        if mode == "last_year":
+            today = datetime.now()
+            start_date = today - timedelta(days=365)
+            random_days = random.randint(0, 364)
+            random_seconds = random.randint(0, 23*3600 + 3599)
+            return start_date + timedelta(days=random_days, seconds=random_seconds)
+        else:
+            year = self.year_var.get()
+            start_date = datetime(year, 1, 1, 0, 0, 0)
+            end_date = datetime(year, 12, 31, 23, 59, 59)
+            delta = end_date - start_date
+            random_seconds = random.randint(0, int(delta.total_seconds()))
+            return start_date + timedelta(seconds=random_seconds)
 
     def make_commit(self, date, repo_path, filename, message):
         filepath = os.path.join(repo_path, filename)
         with open(filepath, "a") as f:
-            f.write(f"Commit at {date.isoformat()}\n")
+            f.write(f"Commit at {date.isoformat()}\\n")
         subprocess.run(["git", "add", filename], cwd=repo_path, capture_output=True)
         env = os.environ.copy()
         date_str = date.strftime("%Y-%m-%dT%H:%M:%S")
@@ -136,6 +173,8 @@ class GraphGreenerGUI:
         filename = self.filename_var.get()
         message = self.message_var.get()
         do_push = self.push_var.get()
+        mode = self.year_mode.get()
+        year = self.year_var.get() if mode == "specific" else None
 
         if not os.path.isdir(repo_path):
             messagebox.showerror("Error", "Repository path does not exist!")
@@ -144,20 +183,25 @@ class GraphGreenerGUI:
 
         git_dir = os.path.join(repo_path, ".git")
         if not os.path.isdir(git_dir):
-            messagebox.showerror("Error", "Selected directory is not a git repository!")
+            messagebox.showerror("Error", "Selected directory is not a git repository!\\nRun 'git init' first.")
             self.run_btn.configure(state="normal")
             return
 
         self.progress["maximum"] = num_commits
         self.progress["value"] = 0
-        self.log(f"Starting generation of {num_commits} commits...")
-        self.log(f"Repo: {repo_path}")
-        self.log(f"File: {filename}")
+        
+        if mode == "specific":
+            self.log(f"🎯 Target Year: {year}")
+        else:
+            self.log(f"🎯 Target: Last 365 Days")
+        self.log(f"📦 Commits to generate: {num_commits}")
+        self.log(f"📁 Repo: {repo_path}")
+        self.log(f"📝 File: {filename}")
         self.log("-" * 50)
 
         success_count = 0
         for i in range(num_commits):
-            commit_date = self.random_date_in_last_year()
+            commit_date = self.random_date()
             self.status_var.set(f"Processing commit {i+1}/{num_commits}...")
             ok = self.make_commit(commit_date, repo_path, filename, message)
             if ok:
@@ -169,11 +213,11 @@ class GraphGreenerGUI:
             self.root.update_idletasks()
 
         self.log("-" * 50)
-        self.log(f"Commits created: {success_count}/{num_commits}")
+        self.log(f"✅ Commits created: {success_count}/{num_commits}")
 
         if do_push:
             self.status_var.set("Pushing to remote...")
-            self.log("Pushing to remote repository...")
+            self.log("🚀 Pushing to remote repository...")
             result = subprocess.run(["git", "push"], cwd=repo_path, capture_output=True, text=True)
             if result.returncode == 0:
                 self.log("✅ Push successful!")
@@ -182,7 +226,7 @@ class GraphGreenerGUI:
 
         self.status_var.set("Done!")
         self.run_btn.configure(state="normal")
-        messagebox.showinfo("Complete", f"Finished! {success_count} commits generated.\nCheck your GitHub graph in a few minutes.")
+        messagebox.showinfo("Complete", f"Finished! {success_count} commits generated.\\nCheck your GitHub contribution graph in a few minutes.")
 
     def start_generation(self):
         self.run_btn.configure(state="disabled")
@@ -192,8 +236,16 @@ class GraphGreenerGUI:
 
 def main():
     root = tk.Tk()
-    app = GraphGreenerGUI(root)
+    app = AutoCommitGUI(root)
     root.mainloop()
 
 if __name__ == "__main__":
     main()
+'''
+
+output_path = "/mnt/agents/output/autocommit_gui.py"
+with open(output_path, "w", encoding="utf-8") as f:
+    f.write(code)
+
+print(f"File saved to: {output_path}")
+print(f"Size: {os.path.getsize(output_path)} bytes")
